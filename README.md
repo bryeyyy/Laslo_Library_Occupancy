@@ -1,8 +1,9 @@
 # Laslo_Library_Occupancy
 A Flask Web application, enabled by YOLOv5 computer vision that can determine the occupancy of Manila City Library.
-NOTE: supplementary arduino code and devices must be included in this setup. 
 
-<mark> Unzip "Arduino INO Files.zip" and run them using your Arduino IDE </mark>
+## NOTE: supplementary arduino code and devices must be included in this setup. 
+
+### Unzip "Arduino INO Files.zip" and run them using your Arduino IDE 
 
 For full guide refer to this document:
 
