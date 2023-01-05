@@ -1,4 +1,4 @@
-#Imports
+'''#Imports
 import cv2
 import numpy as np
 import urllib.request
@@ -181,4 +181,25 @@ while(True):
   
 # After the loop release the vid object
 frame.release()
-cv2.destroyAllWindows()
+cv2.destroyAllWindows()'''
+'''s={}
+for i in range(1,17):
+	s["s{0}_oc".format(i)] = False
+	s["s{0}_uc".format(i)] = True
+
+for i in range(1,17):
+	print(i, s["s{0}_oc".format(i)])
+	print(i, s["s{0}_uc".format(i)])'''
+
+import socket
+
+s = socket.socket()
+
+s.bind(('0.0.0.0', 80))
+s.listen(0)
+
+while True:
+	client, addr = s.accept()
+	content = client.recv(64)
+	count = str(content.decode().strip())
+	print(count)

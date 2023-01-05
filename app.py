@@ -14,22 +14,11 @@ import time
 import threading
 
 #Constants
-LED_CONSTANT = ""
-LED_OFF = 'O'
-LED_GREEN = 'W'
-LED_YELLOW = 'I'
-LED_RED = 'N'
-PATH_NOPRESENCE = 'no_presence.png'
-SENSE_DISTANCE = 121		#Distance in centimeters
 INPUT_WIDTH = 640
 INPUT_HEIGHT = 640
 SCORE_THRESHOLD = 0.5
 NMS_THRESHOLD = 0.5
-CONFIDENCE_THRESHOLD = 0.51
-POS_X = 440
-POS_Y = 470
-START_POINT = (430, 600)
-END_POINT = (650, 450)
+CONFIDENCE_THRESHOLD = 0.45
 
 #Text parameters.
 FONT_FACE = cv2.FONT_HERSHEY_SIMPLEX
@@ -49,7 +38,7 @@ occupy = [False, False, False, False, False, False, False, False, False, False, 
 print(cv2.__version__)
 s = socket.socket()         
  
-s.bind(('0.0.0.0', 80 ))
+s.bind(('0.0.0.0', 80))
 s.listen(0)
 
 #Load Camera and Weight
@@ -70,7 +59,7 @@ with open(classesFile, 'rt') as f:
 app = Flask(__name__,template_folder='templates',static_folder='static')
 
 #change server name depending on your LOCAL IP Address -> cmd -> ipconfig
-app.config['SERVER_NAME'] = '192.168.1.2:5000'  
+app.config['SERVER_NAME'] = '172.20.97.96:5000'  
 #app.config['SECRET_KEY'] = 'password1234567890'
 
 
@@ -79,8 +68,6 @@ turbo = Turbo(app)
 
 
 def draw_label(input_image, label, left, top):
-    """Draw text onto image at location."""
-    
     #Get text size.
     text_size = cv2.getTextSize(label, FONT_FACE, FONT_SCALE, THICKNESS)
     dim, baseline = text_size[0], text_size[1]
@@ -143,6 +130,7 @@ def post_process(input_image, outputs):
 	s8_uc = False
 	s9_oc = False
 	s9_uc = False
+
 	#Rows.
 	rows = outputs[0].shape[1]
 
@@ -171,8 +159,8 @@ def post_process(input_image, outputs):
 
 				cx, cy, w, h = row[0], row[1], row[2], row[3]
 
-				left = int((cx - w/2) * x_factor)
-				top = int((cy - h/2) * y_factor)
+				left = int((cx - w/1.5) * x_factor)
+				top = int((cy - h/1.5) * y_factor)
 				width = int(w * x_factor)
 				height = int(h * y_factor)
 			  
@@ -283,7 +271,7 @@ def post_process(input_image, outputs):
 		if(classes[class_ids[i]] == 's16_uc'):
 			s16_uc = True
 			cv2.rectangle(input_image, (left, top), (left + width, top + height), GREEN, 3*THICKNESS)
-		label = "{}:{:.2f}".format(classes[class_ids[i]], confidences[i])
+		label = classes[class_ids[i]]
 		draw_label(input_image, label, left + 100, top)
 	return input_image,	s1_oc, s1_uc, s10_oc,s10_uc,s11_oc,s11_uc,s12_oc,s12_uc,s13_oc,s13_uc,s14_oc,s14_uc,s15_oc,s15_uc,s16_oc,s16_uc,s2_oc,s2_uc,s3_oc,s3_uc,s4_oc,s4_uc,s5_oc,s5_uc,s6_oc,s6_uc,s7_oc,s7_uc,s8_oc,s8_uc,s9_oc,s9_uc
 
@@ -291,7 +279,7 @@ def post_process(input_image, outputs):
 def gen_frames():
     while True:
 
-        img_resp = urllib.request.urlopen ('http://192.168.1.137/800x600.jpg')
+        img_resp = urllib.request.urlopen ('http://192.168.186.216/800x600.jpg')
         imgnp = np.array(bytearray(img_resp.read()), dtype = np.uint8)
         frame = cv2.imdecode(imgnp, -1)
 
@@ -365,7 +353,6 @@ def gen_frames():
 
         ret,buffer=cv2.imencode('.jpg',img)
         img=buffer.tobytes()
-
         yield(b'--img\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + img + b'\r\n')
 
@@ -424,9 +411,7 @@ def update_seats():
             client, addr = s.accept()
             content = client.recv(32)
             count = str(content.decode().strip())
-
-            time.sleep(2)
-
+            time.sleep(1)
             load3 = count #for people count
             turbo.push(turbo.update(load3, 'libcount'))
 
